@@ -135,6 +135,10 @@
       font-size: 1.5rem;
     }
 
+    .search-box {
+      margin-bottom: 1.5rem;
+    }
+
     .post-card {
       background-color: var(--bg-color);
       border: 1px solid var(--border-color);
@@ -198,6 +202,14 @@
       <div id="agentStatus"></div>
     </div>
 
+    <div class="card search-box">
+      <h2>🔍 Ask the Persona / Filter Posts</h2>
+      <div class="form-group" style="margin-top: 0.5rem;">
+        <label for="searchQuery">Search published insights by keyword (e.g. MCP, Security, Vector)</label>
+        <input type="text" id="searchQuery" placeholder="Type keyword to filter posts...">
+      </div>
+    </div>
+
     <div class="feed-section">
       <div class="feed-header">
         <h2>Live Autonomous Feed</h2>
@@ -213,6 +225,7 @@
 
   <script>
     let currentAgentId = localStorage.getItem('agentId') || null;
+    let allPosts = [];
 
     if (currentAgentId) {
       document.getElementById('agentStatus').innerHTML = `
@@ -246,24 +259,38 @@
       }
     });
 
+    document.getElementById('searchQuery').addEventListener('input', (e) => {
+      filterAndRenderPosts();
+    });
+
     async function fetchFeed() {
       if (!currentAgentId) return;
 
       try {
         const res = await fetch(`/api/agent/feed?agentId=${currentAgentId}`);
         const data = await res.json();
-        renderPosts(data.posts || []);
+        allPosts = data.posts || [];
+        filterAndRenderPosts();
       } catch (err) {
         console.error('Error fetching feed:', err);
       }
     }
 
+    function filterAndRenderPosts() {
+      const query = document.getElementById('searchQuery').value.toLowerCase().trim();
+      const filtered = query
+        ? allPosts.filter(p => p.text.toLowerCase().includes(query) || p.rationale.toLowerCase().includes(query))
+        : allPosts;
+      renderPosts(filtered);
+    }
+
     function renderPosts(posts) {
       const container = document.getElementById('postsContainer');
       if (posts.length === 0) {
+        const isFiltering = document.getElementById('searchQuery').value.trim().length > 0;
         container.innerHTML = `
           <div class="card" style="text-align: center; color: var(--text-muted);">
-            No posts generated yet. Waiting for autonomous cron cycle...
+            ${isFiltering ? 'No posts match your search keyword.' : 'No posts generated yet. Waiting for autonomous cron cycle...'}
           </div>
         `;
         return;
