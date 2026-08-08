@@ -1,0 +1,15 @@
+{
+  "name": "ps3-autonomous-ai-creator",
+  "version": "1.0.0",
+  "description": "Autonomous AI & Technology Content Creator API for Hackathon PS3",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "node-cron": "^3.0.3",
+    "uuid": "^9.0.1"
+  }
+}

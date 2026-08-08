@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Autonomous AI Creator Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #334155;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header h1 {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .card {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    input {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    button {
+      background-color: var(--accent);
+      color: #000;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.5rem;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.2s ease;
+      margin-top: 0.5rem;
+    }
+
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      background-color: rgba(56, 189, 248, 0.1);
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      margin-top: 0.5rem;
+    }
+
+    .feed-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .feed-header h2 {
+      font-size: 1.5rem;
+    }
+
+    .post-card {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      white-space: pre-wrap;
+    }
+
+    .post-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .post-rationale {
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.85rem;
+      color: #38bdf8;
+    }
+
+    .source-link {
+      display: inline-block;
+      margin-top: 0.5rem;
+      color: var(--accent);
+      font-size: 0.85rem;
+      text-decoration: none;
+    }
+
+    .source-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🤖 Autonomous AI Creator</h1>
+      <p>Problem Statement 3: Hackathon Dashboard</p>
+    </header>
+
+    <div class="card">
+      <h2>Initialize AI Agent Persona</h2>
+      <form id="initForm">
+        <div class="grid">
+          <div class="form-group">
+            <label for="name">Persona Name</label>
+            <input type="text" id="name" value="Ada" required>
+          </div>
+          <div class="form-group">
+            <label for="domain">Domain Focus</label>
+            <input type="text" id="domain" value="AI Security" required>
+          </div>
+        </div>
+        <button type="submit">Initialize Agent</button>
+      </form>
+      <div id="agentStatus"></div>
+    </div>
+
+    <div class="feed-section">
+      <div class="feed-header">
+        <h2>Live Autonomous Feed</h2>
+        <span class="status-badge" id="autoRefreshBadge">Auto-refresh: 30s</span>
+      </div>
+      <div id="postsContainer">
+        <div class="card" style="text-align: center; color: var(--text-muted);">
+          No active agent initialized yet. Initialize an agent above to launch autonomous publishing.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentAgentId = localStorage.getItem('agentId') || null;
+
+    if (currentAgentId) {
+      document.getElementById('agentStatus').innerHTML = `
+        <div class="status-badge">Active Agent ID: ${currentAgentId}</div>
+      `;
+      fetchFeed();
+    }
+
+    document.getElementById('initForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const domain = document.getElementById('domain').value;
+
+      try {
+        const res = await fetch('/api/agent/init', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ persona: { name, domain } })
+        });
+        const data = await res.json();
+        if (data.agentId) {
+          currentAgentId = data.agentId;
+          localStorage.setItem('agentId', currentAgentId);
+          document.getElementById('agentStatus').innerHTML = `
+            <div class="status-badge">Active Agent ID: ${currentAgentId}</div>
+          `;
+          fetchFeed();
+        }
+      } catch (err) {
+        console.error('Error initializing agent:', err);
+      }
+    });
+
+    async function fetchFeed() {
+      if (!currentAgentId) return;
+
+      try {
+        const res = await fetch(`/api/agent/feed?agentId=${currentAgentId}`);
+        const data = await res.json();
+        renderPosts(data.posts || []);
+      } catch (err) {
+        console.error('Error fetching feed:', err);
+      }
+    }
+
+    function renderPosts(posts) {
+      const container = document.getElementById('postsContainer');
+      if (posts.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; color: var(--text-muted);">
+            No posts generated yet. Waiting for autonomous cron cycle...
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = posts.map(post => `
+        <div class="post-card">
+          <div class="post-meta">
+            <span>Post ID: ${post.id}</span>
+            <span>${new Date(post.createdAt).toLocaleString()}</span>
+          </div>
+          <div>${post.text}</div>
+          <div class="post-rationale"><strong>Editorial Rationale:</strong><br>${post.rationale}</div>
+          ${post.sources && post.sources.length ? `<a href="${post.sources[0]}" target="_blank" class="source-link">🔗 Reference Source</a>` : ''}
+        </div>
+      `).join('');
+    }
+
+    setInterval(() => {
+      fetchFeed();
+    }, 30000);
+  </script>
+</body>
+</html>
